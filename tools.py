@@ -57,8 +57,19 @@ def add_task(tasklist_id: str, title: str, notes: str = "") -> str:
     except Exception as e:
         logger.error(f"Error creating task: {e}")
         return json.dumps({"error": str(e)})
+
+def get_task(tasklist_id: str, task_id: str) -> str:
+    """Gets the details of a specific task"""
+    try:
+        service = get_tasks_service()
+        result = service.tasks().get(tasklist=tasklist_id,task=task_id).execute()
+        return json.dumps(result,indent=2)
+    except Exception as e:
+        logger.error(f"Error fetching task: {e}")
+        return json.dumps({"error":str(e)})
     
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
     mcp.add_tool(list_task_lists)
     mcp.add_tool(add_task)
+    mcp.add_tool(get_task)
