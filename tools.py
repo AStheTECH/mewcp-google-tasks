@@ -107,6 +107,25 @@ def complete_task(tasklist_id: str, task_id: str) -> str:
         logger.error(f"Error changing status of the task: {e}")
         return json.dumps({"error":str(e)})
     
+def update_task(tasklist_id: str, task_id: str, task_title: str = "", notes: str = "", due: str = "") -> str:
+    """Updates an existing and specific task
+    Note: 'due' must be an RFC 3339 timestamp (e.g., 2026-06-17T00:00:00.000Z)."""
+    try:
+        service = get_tasks_service()
+        body = {}
+        if task_title:
+            body['title']=task_title
+        if notes:
+            body["notes"] = notes
+        if due:
+            body['due'] = due
+        result = service.tasks().patch(tasklist=tasklist_id,task=task_id,body=body).execute()
+        return json.dumps({"message":"Task successfully updated!","task":result},indent=2)
+    except Exception as e:
+        logger.error(f"Error updating the task: {e}")
+        return json.dumps({"error":str(e)})
+
+    
 
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
@@ -116,3 +135,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(get_task_by_name)
     mcp.add_tool(delete_task)
     mcp.add_tool(complete_task)
+    mcp.add_tool(update_task)
