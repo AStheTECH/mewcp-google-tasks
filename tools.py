@@ -85,10 +85,22 @@ def get_task_by_name(tasklist_id: str, task_title: str) -> str:
     except Exception as e:
         logger.error(f"Error searching for task: {e}")
         return json.dumps({"error":str(e)})
+
+def delete_task(tasklist_id: str, task_id: str) -> str:
+    """Deletes a specific task from the task list"""
+    try:
+        service = get_tasks_service()
+        service.tasks().delete(tasklist=tasklist_id,task=task_id).execute()
+        return json.dumps({"message":f"Task {task_id} successfully deleted"}) #Since .delete() returns empty string, a message for verification
+    except Exception as e:
+        logger.error(f"Error deleting task: {e}")
+        return json.dumps({"error":str(e)})
     
+
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
     mcp.add_tool(list_task_lists)
     mcp.add_tool(add_task)
     mcp.add_tool(get_task)
     mcp.add_tool(get_task_by_name)
+    mcp.add_tool(delete_task)
