@@ -126,6 +126,7 @@ def update_task(tasklist_id: str, task_id: str, task_title: str = "", notes: str
         return json.dumps({"error":str(e)})
 
 def create_tasklist(tasklist_name: str) -> str:
+    """Create a new tasklist"""
     try:
         service = get_tasks_service()
         body = {"title":tasklist_name}
@@ -135,6 +136,16 @@ def create_tasklist(tasklist_name: str) -> str:
         logger.error(f"Error creating tasklist: {e}")
         return json.dumps({"error":str(e)})
     
+def update_tasklist(tasklist_id: str, title:str) -> str:
+    """Update name of specific tasklist"""
+    try:
+        service = get_tasks_service()
+        body={"title":title}
+        result = service.tasklists().patch(tasklist=tasklist_id,body=body).execute()
+        return json.dumps({"message":"Tasklist updated successfully!","tasklist":result},indent=2)
+    except Exception as e:
+        logger.error(f"Error updating tasklist: {e}")
+        return json.dumps({"error":str(e)})
 
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
@@ -146,3 +157,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(complete_task)
     mcp.add_tool(update_task)
     mcp.add_tool(create_tasklist)
+    mcp.add_tool(update_tasklist)
