@@ -95,6 +95,17 @@ def delete_task(tasklist_id: str, task_id: str) -> str:
     except Exception as e:
         logger.error(f"Error deleting task: {e}")
         return json.dumps({"error":str(e)})
+
+def complete_task(tasklist_id: str, task_id: str) -> str:
+    """Marks the specific task as completed"""
+    try:
+        service = get_tasks_service()
+        body={"status":"completed"}
+        result = service.tasks().patch(tasklist=tasklist_id,task=task_id,body=body).execute()
+        return json.dumps({"message":"Task marked as complete","task":result},indent=2)
+    except Exception as e:
+        logger.error(f"Error changing status of the task: {e}")
+        return json.dumps({"error":str(e)})
     
 
 def register_tools(mcp: FastMCP):
@@ -104,3 +115,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(get_task)
     mcp.add_tool(get_task_by_name)
     mcp.add_tool(delete_task)
+    mcp.add_tool(complete_task)
