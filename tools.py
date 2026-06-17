@@ -68,8 +68,27 @@ def get_task(tasklist_id: str, task_id: str) -> str:
         logger.error(f"Error fetching task: {e}")
         return json.dumps({"error":str(e)})
     
+def get_task_by_name(tasklist_id: str, task_title: str) -> str:
+    """Searches a task list for a task by its name and returns details of specific task"""
+    try:
+        service = get_tasks_service()
+        results = service.tasks().list(tasklist=tasklist_id).execute()
+        items = results.get('items',[])
+
+        for item in items:
+            if item.get('title','').lower() == task_title.lower():
+                return json.dumps({
+                    "message":"Task Found!",
+                    "task":item
+                }, indent=2)
+        return json.dumps({"error":f"No task found with the title {task_title}"})
+    except Exception as e:
+        logger.error(f"Error searching for task: {e}")
+        return json.dumps({"error":str(e)})
+    
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
     mcp.add_tool(list_task_lists)
     mcp.add_tool(add_task)
     mcp.add_tool(get_task)
+    mcp.add_tool(get_task_by_name)
