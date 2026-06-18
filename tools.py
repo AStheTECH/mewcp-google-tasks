@@ -167,6 +167,16 @@ def get_tasklist(tasklist_id: str) -> str:
         logger.error(f"Error retrieving metadata: {e}")
         return json.dumps({"error":str(e)})
 
+def delete_tasklist(tasklist_id: str) -> str:
+    """Delete the entire specified tasklist with all tasks in it"""
+    try:
+        service = get_tasks_service()
+        result = service.tasklists().delete(tasklist=tasklist_id).execute()
+        return json.dumps({"message":"Tasklist successfully deleted"},indent=2)
+    except Exception as e:
+        logger.error(f"Error deleting tasklist: {e}")
+        return json.dumps({"error":str(e)})
+
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
     mcp.add_tool(list_task_lists)
@@ -180,3 +190,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(update_tasklist)
     mcp.add_tool(list_tasks)
     mcp.add_tool(get_tasklist)
+    mcp.add_tool(delete_tasklist)
