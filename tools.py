@@ -156,6 +156,16 @@ def list_tasks(tasklist_id: str) -> str:
     except Exception as e:
         logger.error(f"Error updating tasklist: {e}")
         return json.dumps({"error":str(e)})
+    
+def get_tasklist(tasklist_id: str) -> str:
+    """Get the metadata of a specific tasklist"""
+    try:
+        service = get_tasks_service()
+        result = service.tasklists().get(tasklist=tasklist_id).execute()
+        return json.dumps({"message":"Metadata successfully retrieved","Metadata":result},indent=2)
+    except Exception as e:
+        logger.error(f"Error retrieving metadata: {e}")
+        return json.dumps({"error":str(e)})
 
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
@@ -169,3 +179,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(create_tasklist)
     mcp.add_tool(update_tasklist)
     mcp.add_tool(list_tasks)
+    mcp.add_tool(get_tasklist)
