@@ -147,6 +147,16 @@ def update_tasklist(tasklist_id: str, title:str) -> str:
         logger.error(f"Error updating tasklist: {e}")
         return json.dumps({"error":str(e)})
 
+def list_tasks(tasklist_id: str) -> str:
+    """List all tasks present in the tasklist"""
+    try:
+        service = get_tasks_service()
+        result = service.tasks().list(tasklist=tasklist_id).execute()
+        return json.dumps({"message":"Here is the list of tasks","tasks":result},indent=2)
+    except Exception as e:
+        logger.error(f"Error updating tasklist: {e}")
+        return json.dumps({"error":str(e)})
+
 def register_tools(mcp: FastMCP):
     """Progammatically adds tools to the MCP server"""
     mcp.add_tool(list_task_lists)
@@ -158,3 +168,4 @@ def register_tools(mcp: FastMCP):
     mcp.add_tool(update_task)
     mcp.add_tool(create_tasklist)
     mcp.add_tool(update_tasklist)
+    mcp.add_tool(list_tasks)
