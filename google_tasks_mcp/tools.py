@@ -1,6 +1,7 @@
 import logging
 import json
-from typing import List
+from typing import List, Annotated
+from pydantic import Field
 from fastmcp import FastMCP
 from .schema import ApiObjectResponse 
 from .service import get_tasks_service
@@ -27,7 +28,7 @@ def register_tools(real_mcp: FastMCP) -> None:
 
 
 @mcp.tool(name="list_task_lists", description="List all task lists accessible by the user")
-def list_task_lists() -> dict:
+def list_task_lists() -> ApiObjectResponse:
     """List all task folders/lists"""
     logger.info("Executing list_task_lists")
     try:
@@ -39,7 +40,12 @@ def list_task_lists() -> dict:
         return {"error": str(e)}
 
 @mcp.tool(name="add_task", description="Create a new task in a specific task list")
-def add_task(tasklist_id: str, title: str, notes: str = "", due: str = "") -> dict:
+def add_task(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    title: Annotated[str, Field(description="The title of the new task.")],
+    notes: Annotated[str, Field(default="", description="Optional details or description for the task.")],
+    due: Annotated[str, Field(default="", description="Optional due date. MUST be an RFC 3339 timestamp (e.g., '2026-06-17T00:00:00.000Z').")]
+) -> ApiObjectResponse:
     """Create a new task"""
     logger.info(f"Executing add_task: {title}")
     try:
@@ -58,7 +64,10 @@ def add_task(tasklist_id: str, title: str, notes: str = "", due: str = "") -> di
         return {"error": str(e)}
     
 @mcp.tool(name="get_task", description="Gets the detail of a specific task from the task list")
-def get_task(tasklist_id: str, task_id: str) -> dict:
+def get_task(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    task_id: Annotated[str, Field(description="The unique ID of the Google Task")],
+) -> ApiObjectResponse:
     """Gets the details of a specific task"""
     logger.info(f"Executing get_task: {task_id}")
     try:
@@ -70,7 +79,10 @@ def get_task(tasklist_id: str, task_id: str) -> dict:
         return {"error":str(e)}
     
 @mcp.tool(name="get_task_by_name", description="Get the task details from the name of the task")
-def get_task_by_name(tasklist_id: str, task_title: str) -> dict:
+def get_task_by_name(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    task_title: Annotated[str, Field(description="The title of the new task.")],
+) -> ApiObjectResponse:
     """Searches a task list for a task by its name and returns details of specific task"""
     try:
         service = get_tasks_service()
@@ -89,7 +101,10 @@ def get_task_by_name(tasklist_id: str, task_title: str) -> dict:
         return {"error":str(e)}
 
 @mcp.tool(name="delete_task",description="Delete a specific task from the tasklist")
-def delete_task(tasklist_id: str, task_id: str) -> dict:
+def delete_task(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    task_id: Annotated[str, Field(description="The unique ID of the Google Task")],
+) -> ApiObjectResponse:
     """Deletes a specific task from the task list"""
     logger.info(f"Executing delete_task: {task_id}")
     try:
@@ -101,7 +116,10 @@ def delete_task(tasklist_id: str, task_id: str) -> dict:
         return {"error":str(e)}
 
 @mcp.tool(name="complete_task",description="Mark a specific task completed from the task list")
-def complete_task(tasklist_id: str, task_id: str) -> dict:
+def complete_task(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    task_id: Annotated[str, Field(description="The unique ID of the Google Task")],
+) -> ApiObjectResponse:
     """Marks the specific task as completed"""
     try:
         service = get_tasks_service()
@@ -113,7 +131,13 @@ def complete_task(tasklist_id: str, task_id: str) -> dict:
         return {"error":str(e)}
     
 @mcp.tool(name="update_task",description="Update the details of an existing task")
-def update_task(tasklist_id: str, task_id: str, task_title: str = "", notes: str = "", due: str = "") -> dict:
+def update_task(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    task_id: Annotated[str, Field(description="The unique ID of the Google Task")],
+    task_title: Annotated[str, Field(description="The title of the new task.")],
+    notes: Annotated[str, Field(default="", description="Optional details or description for the task.")],
+    due: Annotated[str, Field(default="", description="Optional due date. MUST be an RFC 3339 timestamp (e.g., '2026-06-17T00:00:00.000Z').")]
+) -> ApiObjectResponse:
     """Updates an existing and specific task
     Note: 'due' must be an RFC 3339 timestamp (e.g., 2026-06-17T00:00:00.000Z)."""
     try:
@@ -132,7 +156,9 @@ def update_task(tasklist_id: str, task_id: str, task_title: str = "", notes: str
         return {"error":str(e)}
 
 @mcp.tool(name="create_tasklist",description="Create a brand new tasklist")
-def create_tasklist(tasklist_name: str) -> dict:
+def create_tasklist(
+    tasklist_name: Annotated[str, Field(description="The name of the Google Tasks list.")]
+) -> ApiObjectResponse:
     """Create a new tasklist"""
     try:
         service = get_tasks_service()
@@ -144,8 +170,13 @@ def create_tasklist(tasklist_name: str) -> dict:
         return {"error":str(e)}
 
 @mcp.tool(name="update_tasklist",description="Update the name of a specific tasklist")
-def update_tasklist(tasklist_id: str, title:str) -> dict:
-    """Update name of specific tasklist"""
+def update_tasklist(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+    title: Annotated[str, Field(description="The title or name of the new Google Tasks list")],
+) -> ApiObjectResponse:
+    """Update name of specific tasklist
+
+    """
     try:
         service = get_tasks_service()
         body={"title":title}
@@ -156,7 +187,9 @@ def update_tasklist(tasklist_id: str, title:str) -> dict:
         return {"error":str(e)}
 
 @mcp.tool(name="list_tasks",description="List all the tasks present in the specific tasklist")
-def list_tasks(tasklist_id: str) -> dict:
+def list_tasks(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")],
+) -> ApiObjectResponse:
     """List all tasks present in the tasklist"""
     try:
         service = get_tasks_service()
@@ -167,7 +200,9 @@ def list_tasks(tasklist_id: str) -> dict:
         return {"error":str(e)}
     
 @mcp.tool(name="get_tasklist",description="Get the details or metadata of a specific tasklist")
-def get_tasklist(tasklist_id: str) -> dict:
+def get_tasklist(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")]
+) -> ApiObjectResponse:
     """Get the metadata of a specific tasklist"""
     try:
         service = get_tasks_service()
@@ -178,7 +213,9 @@ def get_tasklist(tasklist_id: str) -> dict:
         return {"error":str(e)}
 
 @mcp.tool(name="delete_tasklist",description="Delete an entire tasklist with the tasks in it")
-def delete_tasklist(tasklist_id: str) -> dict:
+def delete_tasklist(
+    tasklist_id: Annotated[str, Field(description="The unique ID of the Google Tasks list.")]
+) -> ApiObjectResponse:
     """Delete the entire specified tasklist with all tasks in it"""
     try:
         service = get_tasks_service()

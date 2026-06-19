@@ -1,4 +1,4 @@
-from typing import Any, TypedDict
+from typing_extensions import Any, TypedDict
 
 class ToolError(TypedDict):
     error: str
