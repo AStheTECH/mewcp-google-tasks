@@ -1,0 +1,12 @@
+{
+  "phase_infra": true,
+  "phase_helpers": true,
+  "tool_groups": {
+    "tasks": true
+  },
+  "phase_init": true,
+  "phase_server": true,
+  "validation_rounds": 0,
+  "validation_passed": false,
+  "readme": false
+}
